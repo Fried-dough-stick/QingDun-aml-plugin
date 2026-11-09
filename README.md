@@ -1,3 +1,103 @@
+# 青盾 2.0 网站版 分工与分支计划
+
+> 定位：中小银行反洗钱风险分析与预警**网站**（演示站），不是补丁。用户注册/登录后看总览、交易、预警和建议，能下载 CSV/PDF/PNG，部署在公网 IP 上给评委和银行看。
+> 数据口径：VynFi AML-100K（748,869 笔 / 59 列 / 1,115 账户 / 411 笔可疑 / 12 个 case / 7 类手法），按个人卡合成数据演示，不写对公。
+> 角色：A＝大数据（库+ETL+认证+总览/交易页+CSV+部署），B＝AI/全栈（模型+API+预警/报告页+PDF/PNG）。
+> 规则：所有 `feat` 分支从 `dev` 切，PR 回 `dev`，合进去才算交接完成。
+> **版本说明：补丁版继续保留在 `青盾2.0_分工与分支.md`，不删除、不改动；本文件是当前执行的网站版。要切回补丁版，直接看那份。**
+
+---
+
+## 0. 先定产品形态：网站
+
+### 0.1 网站版是什么
+
+| 维度 | 网站版（当前） |
+|---|---|
+| 交付物 | 一个公网可访问的 Web 应用 + 源码 + 部署文档 + 模型卡/数据卡 |
+| 用户 | 银行分析师、合规人员、评委（演示账号） |
+| 入口 | 浏览器打开公网 IP/域名 |
+| 登录 | 注册 + 登录 + 登出；演示站开放注册，行内版改成管理员开号 |
+| 核心页面 | 登录/注册、总览、交易、预警、报告、账号 |
+| 核心动作 | 看交易 → 看风险建议 → 看预警因子 → 改处置状态 → 生成/下载报告 |
+| 下载 | 交易/预警 CSV、单条报告 PDF、图表 PNG |
+| 部署 | Docker Compose + Nginx + Postgres，公网 IP 只开 80/443 或演示端口 |
+| 验收 | 手机 4G 能注册/登录、能看数、能下载、10 并发不崩 |
+
+### 0.2 页面与基本功能（D6 必须全有）
+
+| 页面 | 文件 | 基本功能 | 主要接口 | 谁 |
+|---|---|---|---|---|
+| 登录/注册 | `frontend/login.html`、`js/auth.js` | 注册（用户名/邮箱/密码）、登录、登出、401 回登录、错误提示 | `POST /api/auth/register`、`/login`、`/logout`、`GET /me` | A |
+| 总览 | `frontend/index.html`、`js/dashboard.js` | 4 个 KPI（交易数/账户数/预警数/高危数）、7/30 天趋势、风险分布、最新预警 | `GET /api/dashboard/summary`、`/trend`、`/distribution`、`/latest-alerts` | A |
+| 交易 | `frontend/transactions.html`、`js/transactions.js` | 列表、按账户/日期/金额/渠道/方向/风险级别筛选、分页、详情、风险建议卡 | `GET /api/transactions`、`/transactions/{id}`、`/transactions/{id}/risk` | A |
+| 预警 | `frontend/alerts.html`、`js/alerts.js` | 预警队列、筛选、详情、8 条因子、时间线、确认/排除、图表 PNG | `GET /api/alerts`、`/alerts/{id}`、`/alerts/{id}/factors`、`PATCH /alerts/{id}/status` | B |
+| 报告 | `frontend/reports.html`、`js/reports.js` | 生成报告、预览、PDF 下载、报告列表 | `POST /api/reports`、`GET /api/reports`、`/reports/{id}/pdf` | B |
+| 账号 | `frontend/profile.html`、`js/profile.js` | 当前用户、角色、登录时间、登出 | `GET /api/auth/me` | A |
+| 公共下载 | 各页按钮 | 交易/预警 CSV（按当前筛选）、报告 PDF、图表 PNG | `GET /api/export/transactions.csv`、`/alerts.csv` | A/B |
+
+**页面数量控制在 6 个以内。** 不做申诉、不做上传材料、不做消费者反诈科普、不做“我的授权开关”，这些和反洗钱分析站无关。
+
+### 0.3 数据口径与红线
+
+| 指标 | 数值 | 用在哪 |
+|---|---|---|
+| 交易总数 | 748,869 笔 | 总览、数据卡、README、答辩 |
+| 字段数 | 59 列，入库约 25 列 | 数据卡 |
+| 账户数 | 1,115 个 | 总览、交易筛选 |
+| 可疑交易 | 411 笔（0.055%） | 模型页/报告、效果报告 |
+| 可疑账户 / case | 12 个账户 / 12 个 case / 7 类手法 | 报告案例、答辩 |
+| 时间窗口 | 2024-01-01 ～ 2024-07-06 | 页面写“统计区间”，不写“今天” |
+| 预警队列 | top 3,000 + 规则命中，约 3–5k 条 | 预警页 |
+| 每条预警因子 | 8 条 SHAP | 预警详情 |
+| 模型版本 | `xgb-v1` | 报告、模型卡 |
+
+**红线：`is_suspicious`、`suspicion_reason`、`case_id`、`is_false_positive` 只进 `eval_label`，只用于离线评测。API 不返回、页面不展示、不用于生成预警状态、不用于排序。** 预警状态按模型分 + 规则分生成；处置状态用演示种子（85% 待处理 / 15% 已处置），不要“按真值造结果”。
+
+### 0.4 风险建议怎么算、怎么说
+
+- 规则分：命中规则给分，规则清单写进 `backend/ml/config.py`，页面显示“命中规则”。
+- 模型分：XGBoost 200 棵、深度 4、学习率 0.1、`scale_pos_weight`。
+- 综合分：`final_score = 0.3 * rule_score + 0.7 * model_score`。
+- 分级：高危 ≥ 0.8，中危 ≥ 0.5，其余低危；入队 top 3,000 + 规则 ≥ 0.67。
+- 页面口径：写“风险建议/可疑概率”，不写“认定洗钱”；每条建议带“辅助分析，不构成定性结论”的声明。
+- 解释：每条预警 8 条因子（特征名、取值、SHAP、方向），阶段二补中文名和红蓝条。
+
+### 0.5 旧 HTML 只做网站壳
+
+| 旧 HTML 位置 | 原来是什么 | 网站版怎么用 |
+|---|---|---|
+| 第 1–120 行 `:root` | 青绿配色、卡片阴影 | **保留**，作为全站变量 |
+| 第 1430–1452 行 header | 深色吸顶栏、logo、nav | **保留样式**；nav 改成：总览 / 交易 / 预警 / 报告 / 账号 |
+| 第 1454–1527 行 `#view-home` | 健康分仪表盘、特征条、动态 | **改总览**：gauge 改“高危占比”，特征条改“高/中/低危”，动态改“最新预警” |
+| 第 1529–1713 行 `#view-warning` | 反诈科普、视频 | **只留 `.rhythm-monitor`**，改成预警详情的“风险因子”卡；其余全删 |
+| 第 1715–1798 行 `#view-appealing` | 申诉表单 | **删**，网站不做客户申诉 |
+| 第 1800–1859 行 `#view-upload` | 上传材料 | **删** |
+| 第 1861–1957 行 `#view-myself` | 授权开关/安全设置 | **改成账号页**：用户名/角色/登录时间/登出，删授权开关 |
+| 第 1959–1997 行两个 modal | 视频弹窗、承诺弹窗 | **删内容，留 `.modal` 样式**，用于交易详情/报告预览 |
+| 第 1999–2254 行 JS | nav 切换、gauge 动画、countUp、bar 动画 | **保留动效**；导航换 hash 路由；新增 `api.js`/`charts.js` |
+| 旧页面没有的 | 表格、筛选、分页、登录、报告 | **新写** `table.css`、`auth.js`、`router.js`、`reports.js` |
+
+**一句话：旧 HTML 只留视觉壳和动效，消费者内容全删；网站是分析工具，不是反诈宣传页。**
+
+### 0.6 数据集字段怎么进库、怎么上页面
+
+| parquet 字段 | 进哪张表 | 页面哪里用 | 注意 |
+|---|---|---|---|
+| `transaction_id` | `txn.txn_id` | 交易/预警主键 | 字符串 UUID |
+| `account_id` | `account.account_id` / `txn.account_id` | 账户列、筛选 | 1,115 个，没有 customer_id |
+| `timestamp_initiated` | `txn.ts_initiated` | 时间线、筛选、趋势 | `timestamptz` |
+| `amount` / `currency` | `txn.amount` / `currency` | 金额列 | `numeric(18,2)` |
+| `direction` / `channel` | 同名列 | 收付标签、筛选 | 7 类渠道 |
+| `category` / `mcc` | 同名列 | 类别、因子 | salary/groceries/dining/ATM 等 |
+| `counterparty.*` | `counterparty_type/name/country` | 交易详情、预警 | Target/CVS/Uber 等保留原样 |
+| `is_authorized` / `status` | 同名列 | 授权状态、因子 | 因子之一 |
+| 9 个 `velocity_features.*` | 9 个同名列 | 因子条、模型输入 | 1h/24h/7d/30d 频次、对手方数、国家数、金额统计、Z 分数 |
+| `spoofing_intensity` | 同名列 | 因子条 | 全量非零仅 36 条，别单独当主特征 |
+| `is_suspicious` / `suspicion_reason` / `case_id` / `is_false_positive` | **只进 `eval_label`** | 离线评测 | **API 不返回、页面不展示** |
+| `device_id` / `ip_address` | 存表但 API 不返回 | 无 | 按隐私字段处理 |
+
+### 0.7 公网部署边界（别把演示站当生产）
 
 | 事项 | D6 演示站 | 行内/生产版 |
 |---|---|---|
