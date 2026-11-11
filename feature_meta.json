@@ -1,0 +1,56 @@
+{
+  "version": "xgb-v1",
+  "features": [
+    "velocity_features.txn_count_1h",
+    "velocity_features.txn_count_24h",
+    "velocity_features.txn_count_7d",
+    "velocity_features.txn_count_30d",
+    "velocity_features.amount_sum_24h",
+    "velocity_features.amount_max_24h",
+    "velocity_features.amount_zscore",
+    "velocity_features.unique_counterparties_24h",
+    "velocity_features.unique_countries_7d",
+    "mcc",
+    "spoofing_intensity",
+    "channel",
+    "direction",
+    "is_authorized"
+  ],
+  "feature_labels": {
+    "velocity_features.txn_count_1h": "近1小时交易笔数",
+    "velocity_features.txn_count_24h": "近24小时交易笔数",
+    "velocity_features.txn_count_7d": "近7天交易笔数",
+    "velocity_features.txn_count_30d": "近30天交易笔数",
+    "velocity_features.amount_sum_24h": "近24小时金额合计",
+    "velocity_features.amount_max_24h": "近24小时单笔金额峰值",
+    "velocity_features.amount_zscore": "近30天金额Z分数",
+    "velocity_features.unique_counterparties_24h": "近24小时对手方数",
+    "velocity_features.unique_countries_7d": "近7天国家/地区数",
+    "mcc": "商户类别码MCC",
+    "spoofing_intensity": "设备仿冒强度",
+    "channel": "交易渠道",
+    "direction": "资金方向",
+    "is_authorized": "是否授权"
+  },
+  "categorical": {
+    "channel": {
+      "ach": 0,
+      "atm": 1,
+      "card_not_present": 2,
+      "card_present": 3,
+      "check": 4,
+      "mobile": 5,
+      "online": 6,
+      "peer_to_peer": 7,
+      "swift": 8,
+      "wire": 9
+    },
+    "direction": {
+      "inbound": 0,
+      "outbound": 1
+    }
+  },
+  "fill_value": 0,
+  "trained_rows": 748842,
+  "trained_at": "2026-11-11T04:57:14+00:00"
+}
