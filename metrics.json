@@ -1,0 +1,108 @@
+{
+  "model_version": "xgb-v1",
+  "generated_at": "2026-11-11T04:57:14+00:00",
+  "dataset": {
+    "rows": 748842,
+    "accounts": 1311,
+    "suspicious": 384,
+    "suspicious_rate": 0.000513,
+    "time_start": "2024-01-01 08:01:21+00:00",
+    "time_end": "2025-01-01 21:59:50+00:00"
+  },
+  "features": [
+    "velocity_features.txn_count_1h",
+    "velocity_features.txn_count_24h",
+    "velocity_features.txn_count_7d",
+    "velocity_features.txn_count_30d",
+    "velocity_features.amount_sum_24h",
+    "velocity_features.amount_max_24h",
+    "velocity_features.amount_zscore",
+    "velocity_features.unique_counterparties_24h",
+    "velocity_features.unique_countries_7d",
+    "mcc",
+    "spoofing_intensity",
+    "channel",
+    "direction",
+    "is_authorized"
+  ],
+  "xgb_params": {
+    "n_estimators": 200,
+    "max_depth": 4,
+    "learning_rate": 0.1,
+    "eval_metric": "logloss",
+    "random_state": 42,
+    "tree_method": "hist"
+  },
+  "group_split": {
+    "train_rows": 529214,
+    "test_rows": 219628,
+    "metrics": {
+      "模型": "XGBoost",
+      "划分": "按账户分组",
+      "f1": 0.0025,
+      "auc": 0.604,
+      "pr_auc": 0.0018,
+      "mcc": 0.0004
+    }
+  },
+  "time_split": {
+    "cutoff": "2024-05-31",
+    "train_rows": 302605,
+    "test_rows": 446237,
+    "metrics": {
+      "f1": 0.0019,
+      "auc": 0.6874,
+      "pr_auc": 0.0008,
+      "mcc": 0.0088
+    }
+  },
+  "topk": [
+    {
+      "K": 50,
+      "命中可疑数": 0,
+      "召回率": 0.0,
+      "精确率": 0.0
+    },
+    {
+      "K": 100,
+      "命中可疑数": 0,
+      "召回率": 0.0,
+      "精确率": 0.0
+    },
+    {
+      "K": 200,
+      "命中可疑数": 0,
+      "召回率": 0.0,
+      "精确率": 0.0
+    },
+    {
+      "K": 500,
+      "命中可疑数": 0,
+      "召回率": 0.0,
+      "精确率": 0.0
+    },
+    {
+      "K": 1000,
+      "命中可疑数": 0,
+      "召回率": 0.0,
+      "精确率": 0.0
+    },
+    {
+      "K": 2000,
+      "命中可疑数": 3,
+      "召回率": 0.0112,
+      "精确率": 0.0015
+    },
+    {
+      "K": 5000,
+      "命中可疑数": 6,
+      "召回率": 0.0225,
+      "精确率": 0.0012
+    }
+  ],
+  "notes": [
+    "按账户分组切分用于评估，避免同一账户同时出现在训练和测试。",
+    "生产模型使用全量数据重训，feature_meta.json 的编码映射也来自全量数据。",
+    "分类指标阈值固定 0.5；业务风险等级另按 final_score 的 0.8/0.5 划分。"
+  ]
+}

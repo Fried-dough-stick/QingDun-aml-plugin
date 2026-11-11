@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>预警队列 · 青盾 2.0</title>
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/table.css" />
+  <link rel="stylesheet" href="/css/alerts.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="container page">
+    <section id="view-queue">
+      <div class="page-header">
+        <div>
+          <h1>预警队列</h1>
+          <p class="sub">按综合风险分排序，Top 3,000 + 硬规则命中入队。点击任意一行查看卷宗。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn" id="export-btn" type="button">导出当前筛选 CSV</button>
+          <button class="btn" id="refresh-btn" type="button">刷新</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <form class="filter-bar" id="filter-form">
+          <div class="field">
+            <label for="f-risk">风险等级</label>
+            <select class="select" id="f-risk" name="risk_level">
+              <option value="">全部</option>
+              <option value="high">高危</option>
+              <option value="mid">中危</option>
+              <option value="low">低危</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-status">处置状态</label>
+            <select class="select" id="f-status" name="status">
+              <option value="">全部</option>
+              <option value="pending">待处理</option>
+              <option value="confirmed">确认可疑</option>
+              <option value="dismissed">已排除</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-from">开始日期</label>
+            <input class="input" type="date" id="f-from" name="date_from" />
+          </div>
+          <div class="field">
+            <label for="f-to">结束日期</label>
+            <input class="input" type="date" id="f-to" name="date_to" />
+          </div>
+          <div class="field grow">
+            <label for="f-q">搜索</label>
+            <input class="input" id="f-q" name="q" placeholder="预警编号 / 交易编号 / 账户 / 对手方" />
+          </div>
+          <button class="btn btn-primary" type="submit">筛选</button>
+          <button class="btn btn-ghost" type="button" id="reset-btn">重置</button>
+        </form>
+
+        <div class="toolbar">
+          <div class="left small muted" id="queue-count">—</div>
+          <div class="right">
+            <select class="select" id="f-sort" aria-label="排序">
+              <option value="priority">按优先级</option>
+              <option value="risk_desc">按风险分</option>
+              <option value="time_desc">按交易时间</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="queue-body">
+          <div class="loading"><span class="spinner"></span>加载中</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-detail" hidden>
+      <a class="detail-back" href="#/alerts" id="back-link">← 返回预警队列</a>
+      <div id="detail-body">
+        <div class="loading"><span class="spinner"></span>加载卷宗</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/format.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/router.js"></script>
+  <script src="/js/charts.js"></script>
+  <script src="/js/alerts.js"></script>
+</body>
+</html>

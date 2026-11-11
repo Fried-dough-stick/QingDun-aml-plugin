@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>报告中心 · 青盾 2.0</title>
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/table.css" />
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="container page">
+    <div class="page-header">
+      <div>
+        <h1>报告中心</h1>
+        <p class="sub">按预警生成 8 段式可疑交易分析报告（SAR 草稿），支持在线预览与 PDF 下载。</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn" id="refresh-btn" type="button">刷新</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">生成报告</h3>
+      <form class="filter-bar" id="create-form">
+        <div class="field grow">
+          <label for="c-alert">预警编号</label>
+          <input class="input" id="c-alert" placeholder="例如 ALT-3F2A9C81B0D4" required />
+        </div>
+        <div class="field">
+          <label for="c-type">报告类型</label>
+          <select class="select" id="c-type">
+            <option value="alert">预警分析报告</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit" id="create-btn">生成 PDF</button>
+      </form>
+      <p class="small muted" style="margin:8px 0 0">提示：在预警卷宗页点“生成 SAR 报告”会自动带上当前预警编号。</p>
+    </div>
+
+    <div class="card">
+      <form class="filter-bar" id="filter-form">
+        <div class="field grow">
+          <label for="f-alert">按预警编号筛选</label>
+          <input class="input" id="f-alert" name="alert_id" placeholder="留空查看全部报告" />
+        </div>
+        <div class="field">
+          <label for="f-status">状态</label>
+          <select class="select" id="f-status" name="status">
+            <option value="">全部</option>
+            <option value="generated">已生成</option>
+            <option value="failed">生成失败</option>
+          </select>
+        </div>
+        <button class="btn" type="submit">筛选</button>
+        <button class="btn btn-ghost" type="button" id="reset-btn">重置</button>
+      </form>
+
+      <div id="reports-body">
+        <div class="loading"><span class="spinner"></span>加载报告列表</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/format.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/reports.js"></script>
+</body>
+</html>
