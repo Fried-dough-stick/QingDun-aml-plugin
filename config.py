@@ -1,88 +1,55 @@
 from __future__ import annotations
 
+import os
+from functools import lru_cache
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parents[2]
 
-RAW_DATA_DIR = BASE_DIR / "data" / "raw"
-ARTIFACT_DIR = BASE_DIR / "artifacts"
-OUTPUT_DIR = BASE_DIR / "outputs"
+BASE_DIR = Path(__file__).resolve().parents[3]
 
-MODEL_PATH = ARTIFACT_DIR / "xgb_model.json"
-FEATURE_META_PATH = ARTIFACT_DIR / "feature_meta.json"
-METRICS_PATH = ARTIFACT_DIR / "metrics.json"
-MODEL_COMPARISON_PATH = ARTIFACT_DIR / "model_comparison.csv"
-TOPK_PATH = ARTIFACT_DIR / "topk_precision.csv"
-PR_CURVE_PATH = ARTIFACT_DIR / "pr_curve.json"
 
-RANDOM_STATE = 42
-TEST_SIZE = 0.3
-TIME_CUTOFF = "2024-05-31"
+def _bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
-XGB_PARAMS = {
-    "n_estimators": 200,
-    "max_depth": 4,
-    "learning_rate": 0.1,
-    "eval_metric": "logloss",
-    "random_state": RANDOM_STATE,
-    "n_jobs": -1,
-    "tree_method": "hist",
-}
 
-FINAL_SCORE_RULE_WEIGHT = 0.3
-FINAL_SCORE_MODEL_WEIGHT = 0.7
+class Settings:
+    def __init__(self) -> None:
+        self.app_name = os.getenv("APP_NAME", "青盾 2.0 反洗钱风险分析站")
+        self.env = os.getenv("APP_ENV", "dev")
+        self.debug = _bool("APP_DEBUG", True)
+        self.secret_key = os.getenv("APP_SECRET_KEY", "dev-only-change-me")
+        self.access_token_expire_minutes = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
+        self.auth_mode = os.getenv("AUTH_MODE", "demo").strip().lower()
+        self.demo_username = os.getenv("DEMO_USERNAME", "demo")
+        self.demo_password = os.getenv("DEMO_PASSWORD", "demo123456")
 
-RISK_HIGH = 0.8
-RISK_MID = 0.5
+        self.database_url = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'data' / 'qingdun.db'}")
 
-ALERT_TOP_K = 3000
-ALERT_RULE_CUTOFF = 0.67
-FACTOR_TOP_N = 8
+        self.data_dir = Path(os.getenv("DATA_DIR", str(BASE_DIR / "data")))
+        self.model_path = Path(os.getenv("MODEL_PATH", str(BASE_DIR / "artifacts" / "xgb_model.json")))
+        self.feature_meta_path = Path(
+            os.getenv("FEATURE_META_PATH", str(BASE_DIR / "artifacts" / "feature_meta.json"))
+        )
+        self.report_dir = Path(os.getenv("REPORT_DIR", str(BASE_DIR / "outputs" / "reports")))
+        self.frontend_dir = Path(os.getenv("FRONTEND_DIR", str(BASE_DIR / "frontend")))
+        self.cors_origins = [
+            item.strip()
+            for item in os.getenv("CORS_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",")
+            if item.strip()
+        ]
 
-VELOCITY_FEATURES = [
-    "velocity_features.txn_count_1h",
-    "velocity_features.txn_count_24h",
-    "velocity_features.txn_count_7d",
-    "velocity_features.txn_count_30d",
-    "velocity_features.amount_sum_24h",
-    "velocity_features.amount_max_24h",
-    "velocity_features.amount_zscore",
-    "velocity_features.unique_counterparties_24h",
-    "velocity_features.unique_countries_7d",
-]
+        self.default_page_size = int(os.getenv("DEFAULT_PAGE_SIZE", "20"))
+        self.max_page_size = int(os.getenv("MAX_PAGE_SIZE", "100"))
+        self.max_export_rows = int(os.getenv("MAX_EXPORT_ROWS", "200000"))
 
-CATEGORICAL_FEATURES = ["channel", "direction"]
+    @property
+    def is_sqlite(self) -> bool:
+        return self.database_url.startswith("sqlite")
 
-MODEL_FEATURES = (
-    VELOCITY_FEATURES
-    + ["mcc", "spoofing_intensity", "channel", "direction", "is_authorized"]
-)
 
-FEATURE_LABELS = {
-    "velocity_features.txn_count_1h": "近1小时交易笔数",
-    "velocity_features.txn_count_24h": "近24小时交易笔数",
-    "velocity_features.txn_count_7d": "近7天交易笔数",
-    "velocity_features.txn_count_30d": "近30天交易笔数",
-    "velocity_features.amount_sum_24h": "近24小时金额合计",
-    "velocity_features.amount_max_24h": "近24小时单笔金额峰值",
-    "velocity_features.amount_zscore": "近30天金额Z分数",
-    "velocity_features.unique_counterparties_24h": "近24小时对手方数",
-    "velocity_features.unique_countries_7d": "近7天国家/地区数",
-    "mcc": "商户类别码MCC",
-    "spoofing_intensity": "设备仿冒强度",
-    "channel": "交易渠道",
-    "direction": "资金方向",
-    "is_authorized": "是否授权",
-}
-
-# (标签, 判定字段, 阈值, 权重)。规则只使用交易自身特征，不接触真值标签。
-RULES = [
-    ("未授权交易", "is_authorized", 0, 0.35),
-    ("1小时交易频次≥5", "velocity_features.txn_count_1h", 5, 0.25),
-    ("24小时交易频次≥8", "velocity_features.txn_count_24h", 8, 0.20),
-    ("30天金额Z分数≥5", "velocity_features.amount_zscore", 5.0, 0.20),
-    ("24小时金额合计≥10000", "velocity_features.amount_sum_24h", 10000.0, 0.15),
-    ("24小时单笔峰值≥5000", "velocity_features.amount_max_24h", 5000.0, 0.15),
-    ("24小时对手方数≥6", "velocity_features.unique_counterparties_24h", 6, 0.15),
-    ("设备/环境仿冒信号", "spoofing_intensity", 0.0, 0.20),
-]
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

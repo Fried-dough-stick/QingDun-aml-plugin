@@ -1,0 +1,19 @@
+fastapi>=0.116,<1.0
+uvicorn[standard]>=0.30,<1.0
+SQLAlchemy>=2.0,<3.0
+pydantic>=2.7,<3.0
+python-multipart>=0.0.9
+reportlab>=4.2,<6.0
+pandas>=2.2,<3.0
+pyarrow>=17,<26
+numpy>=1.26,<3.0
+scikit-learn>=1.5,<2.0
+xgboost>=3.0,<4.0
+
+# 离线实验与测试（API 运行不依赖）
+imbalanced-learn>=0.12,<1.0
+matplotlib>=3.8,<4.0
+seaborn>=0.13,<1.0
+shap>=0.45,<1.0
+pytest>=8.0,<9.0
+httpx>=0.27,<1.0
