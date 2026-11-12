@@ -60,10 +60,6 @@ def _load_input(paths: list[Path] | None, limit: int | None) -> pd.DataFrame:
         for path in paths:
             frames.append(pd.read_parquet(path, columns=SCORE_COLUMNS))
         df = pd.concat(frames, ignore_index=True)
-        raw_rows = len(df)
-        df = df.drop_duplicates(subset="transaction_id", keep="first").reset_index(drop=True)
-        if raw_rows != len(df):
-            print(f"按 transaction_id 去重：{raw_rows:,} → {len(df):,}")
         if limit:
             df = df.head(limit).copy()
         df["timestamp_initiated"] = pd.to_datetime(df["timestamp_initiated"], utc=True, errors="coerce")
@@ -110,8 +106,8 @@ def _risk_level(score: float) -> str:
     return "low"
 
 
-def _alert_id(txn_id: str) -> str:
-    return "ALT-" + hashlib.sha1(txn_id.encode("utf-8")).hexdigest()[:12].upper()
+def _alert_id(txn_id: str, account_id: str) -> str:
+    return "ALT-" + hashlib.sha1(f"{txn_id}:{account_id}".encode("utf-8")).hexdigest()[:12].upper()
 
 
 def _demo_status(alert_id: str) -> str:
@@ -152,20 +148,23 @@ def _write_risk_scores(
         if reset:
             db.query(RiskScore).delete()
             db.commit()
-        existing = {row[0] for row in db.execute(select(RiskScore.txn_id)).all()}
-        known_txns = {row[0] for row in db.execute(select(Txn.txn_id)).all()}
+        existing = {(row[0], row[1]) for row in db.execute(select(RiskScore.txn_id, RiskScore.account_id)).all()}
+        known_txns = {(row[0], row[1]) for row in db.execute(select(Txn.txn_id, Txn.account_id)).all()}
         batch: list[dict] = []
         written = 0
         skipped = 0
-        for i, txn_id in enumerate(df["transaction_id"].astype(str)):
-            if txn_id in existing:
+        pairs = zip(df["transaction_id"].astype(str), df["account_id"].astype(str))
+        for i, (txn_id, account_id) in enumerate(pairs):
+            key = (txn_id, account_id)
+            if key in existing:
                 continue
-            if txn_id not in known_txns:
+            if key not in known_txns:
                 skipped += 1
                 continue
             batch.append(
                 {
                     "txn_id": txn_id,
+                    "account_id": account_id,
                     "rule_score": float(rule[i]),
                     "model_score": float(model[i]),
                     "final_score": float(final[i]),
@@ -217,22 +216,26 @@ def _write_alerts(
         order = np.argsort(-final[selected])
         rank_of = {int(pos): rank + 1 for rank, pos in enumerate(order)}
 
-        valid_txn_ids: set[str] = set()
-        txn_ids = selected_df["transaction_id"].astype(str).tolist()
-        for start in range(0, len(txn_ids), 500):
-            chunk = txn_ids[start : start + 500]
-            valid_txn_ids.update(row[0] for row in db.execute(select(Txn.txn_id).where(Txn.txn_id.in_(chunk))).all())
-        missing = len(txn_ids) - len(valid_txn_ids)
+        valid_keys: set[tuple[str, str]] = set()
+        pairs = list(zip(selected_df["transaction_id"].astype(str), selected_df["account_id"].astype(str)))
+        for start in range(0, len(pairs), 500):
+            chunk = pairs[start : start + 500]
+            chunk_ids = {txn_id for txn_id, _ in chunk}
+            for row in db.execute(
+                select(Txn.txn_id, Txn.account_id).where(Txn.txn_id.in_(chunk_ids))
+            ).all():
+                valid_keys.add((row[0], row[1]))
+        missing = sum(1 for pair in pairs if pair not in valid_keys)
         if missing:
             print(f"[警告] {missing} 条候选交易不在 txn 表中，已跳过；请先执行数据入库")
 
         alert_rows: list[dict] = []
         factor_rows: list[dict] = []
         for pos, row in selected_df.iterrows():
-            txn_id = str(row["transaction_id"])
-            if txn_id not in valid_txn_ids:
+            key = (str(row["transaction_id"]), str(row["account_id"]))
+            if key not in valid_keys:
                 continue
-            alert_id = _alert_id(txn_id)
+            alert_id = _alert_id(*key)
             if alert_id in existing:
                 continue
             hits = _rule_hits(row)
@@ -253,7 +256,7 @@ def _write_alerts(
             alert_rows.append(
                 {
                     "alert_id": alert_id,
-                    "txn_id": txn_id,
+                    "txn_id": key[0],
                     "account_id": str(row["account_id"]),
                     "risk_score": round(float(final[selected[pos]]), 6),
                     "risk_level": _risk_level(float(final[selected[pos]])),

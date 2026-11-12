@@ -31,8 +31,6 @@ def load_dataset(paths: list[Path | str] | None = None, limit: int | None = None
         paths = default_parquet_paths()
     frames = [pd.read_parquet(path) for path in paths]
     df = pd.concat(frames, ignore_index=True) if len(frames) > 1 else frames[0]
-    if "transaction_id" in df.columns:
-        df = df.drop_duplicates(subset="transaction_id", keep="first").reset_index(drop=True)
     if limit:
         df = df.head(limit).copy()
     if "timestamp_initiated" in df.columns:

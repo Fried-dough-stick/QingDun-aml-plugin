@@ -38,12 +38,13 @@
       "atm": 1,
       "card_not_present": 2,
       "card_present": 3,
-      "check": 4,
-      "mobile": 5,
-      "online": 6,
-      "peer_to_peer": 7,
-      "swift": 8,
-      "wire": 9
+      "cash": 4,
+      "check": 5,
+      "mobile": 6,
+      "online": 7,
+      "peer_to_peer": 8,
+      "swift": 9,
+      "wire": 10
     },
     "direction": {
       "inbound": 0,
@@ -51,6 +52,6 @@
     }
   },
   "fill_value": 0,
-  "trained_rows": 748842,
-  "trained_at": "2026-11-11T04:57:14+00:00"
+  "trained_rows": 748869,
+  "trained_at": "2026-11-12T07:51:49+00:00"
 }
