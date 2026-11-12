@@ -50,7 +50,7 @@ def create_report(
     alert = db.get(Alert, payload.alert_id)
     if alert is None:
         raise HTTPException(status_code=404, detail="预警不存在")
-    txn = db.get(Txn, alert.txn_id)
+    txn = db.get(Txn, (alert.txn_id, alert.account_id))
     if txn is None:
         raise HTTPException(status_code=404, detail="关联交易不存在")
 
@@ -65,7 +65,7 @@ def create_report(
     db.add(report)
     db.commit()
 
-    risk = db.get(RiskScore, alert.txn_id)
+    risk = db.get(RiskScore, (alert.txn_id, alert.account_id))
     account = db.get(Account, alert.account_id)
     account_txn_count = int(
         db.scalar(select(func.count()).select_from(Txn).where(Txn.account_id == alert.account_id)) or 0

@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy import func, or_, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_settings
@@ -85,7 +85,10 @@ def list_transactions(
     count_stmt = (
         select(func.count())
         .select_from(Txn)
-        .outerjoin(RiskScore, RiskScore.txn_id == Txn.txn_id)
+        .outerjoin(
+            RiskScore,
+            and_(RiskScore.txn_id == Txn.txn_id, RiskScore.account_id == Txn.account_id),
+        )
         .where(*conditions)
     )
     total = int(db.scalar(count_stmt) or 0)
@@ -99,9 +102,12 @@ def list_transactions(
 
     rows = db.execute(
         select(Txn, RiskScore)
-        .outerjoin(RiskScore, RiskScore.txn_id == Txn.txn_id)
+        .outerjoin(
+            RiskScore,
+            and_(RiskScore.txn_id == Txn.txn_id, RiskScore.account_id == Txn.account_id),
+        )
         .where(*conditions)
-        .order_by(order_by, Txn.txn_id)
+        .order_by(order_by, Txn.txn_id, Txn.account_id)
         .offset((page - 1) * page_size)
         .limit(page_size)
     ).all()
@@ -184,24 +190,45 @@ def _txn_detail(db: Session, txn: Txn, risk: RiskScore | None, alert: Alert | No
 def get_transaction(
     txn_id: str,
     request: Request,
+    account_id: str | None = Query(default=None, description="撞号 transaction_id 时用于指定账户"),
     db: Session = Depends(get_db),
     user: AppUser = Depends(get_current_user),
 ):
-    txn = db.get(Txn, txn_id)
+    if account_id:
+        txn = db.get(Txn, (txn_id, account_id))
+    else:
+        txn = db.scalar(
+            select(Txn).where(Txn.txn_id == txn_id).order_by(Txn.ts_initiated, Txn.account_id)
+        )
     if txn is None:
         raise HTTPException(status_code=404, detail="交易不存在")
-    risk = db.get(RiskScore, txn_id)
-    alert = db.scalar(select(Alert).where(Alert.txn_id == txn_id))
+    risk = db.get(RiskScore, (txn.txn_id, txn.account_id))
+    alert = db.scalar(
+        select(Alert).where(Alert.txn_id == txn.txn_id, Alert.account_id == txn.account_id)
+    )
     write_audit(db, user, "view", "txn", txn_id, request)
     return _txn_detail(db, txn, risk, alert)
 
 
 @router.get("/{txn_id}/risk", response_model=TxnRiskOut)
-def get_transaction_risk(txn_id: str, db: Session = Depends(get_db)):
-    risk = db.get(RiskScore, txn_id)
+def get_transaction_risk(
+    txn_id: str,
+    account_id: str | None = Query(default=None, description="撞号 transaction_id 时用于指定账户"),
+    db: Session = Depends(get_db),
+):
+    if account_id:
+        risk = db.get(RiskScore, (txn_id, account_id))
+    else:
+        risk = db.scalar(
+            select(RiskScore)
+            .where(RiskScore.txn_id == txn_id)
+            .order_by(RiskScore.final_score.desc(), RiskScore.account_id)
+        )
     if risk is None:
         return TxnRiskOut(txn_id=txn_id, risk=None, factors=[], message="该交易尚未打分")
-    alert = db.scalar(select(Alert).where(Alert.txn_id == txn_id))
+    alert = db.scalar(
+        select(Alert).where(Alert.txn_id == risk.txn_id, Alert.account_id == risk.account_id)
+    )
     factors = []
     if alert:
         factors = [

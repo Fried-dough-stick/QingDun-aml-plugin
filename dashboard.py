@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 
 from backend.app.db.session import get_db
@@ -70,7 +70,7 @@ def _trend(db: Session, days: int) -> list[TrendPoint]:
     alert_rows = db.execute(
         select(func.date(Txn.ts_initiated).label("day"), func.count().label("cnt"))
         .select_from(Alert)
-        .join(Txn, Alert.txn_id == Txn.txn_id)
+        .join(Txn, and_(Alert.txn_id == Txn.txn_id, Alert.account_id == Txn.account_id))
         .where(Txn.ts_initiated >= start)
         .group_by(func.date(Txn.ts_initiated))
     ).all()
@@ -103,7 +103,7 @@ def _distribution(db: Session) -> list[DistributionItem]:
 def _latest_alerts(db: Session, limit: int) -> list[LatestAlert]:
     rows = db.execute(
         select(Alert, Txn)
-        .join(Txn, Alert.txn_id == Txn.txn_id)
+        .join(Txn, and_(Alert.txn_id == Txn.txn_id, Alert.account_id == Txn.account_id))
         .order_by(Alert.priority.asc(), Alert.created_at.desc())
         .limit(limit)
     ).all()

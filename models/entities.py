@@ -9,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
     Numeric,
@@ -51,7 +52,9 @@ class Txn(Base):
     __tablename__ = "txn"
 
     txn_id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    account_id: Mapped[str] = mapped_column(ForeignKey("account.account_id"), index=True, nullable=False)
+    account_id: Mapped[str] = mapped_column(
+        ForeignKey("account.account_id"), primary_key=True, index=True, nullable=False
+    )
     ts_initiated: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(20, 4), nullable=False)
     currency: Mapped[str] = mapped_column(String(8), default="USD", nullable=False)
@@ -99,7 +102,8 @@ class Txn(Base):
 class RiskScore(Base):
     __tablename__ = "risk_score"
 
-    txn_id: Mapped[str] = mapped_column(ForeignKey("txn.txn_id"), primary_key=True)
+    txn_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    account_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     rule_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     model_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     final_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
@@ -111,6 +115,11 @@ class RiskScore(Base):
     txn: Mapped[Txn] = relationship(back_populates="risk")
 
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["txn_id", "account_id"],
+            ["txn.txn_id", "txn.account_id"],
+            ondelete="CASCADE",
+        ),
         Index("ix_risk_level_score", "risk_level", "final_score"),
     )
 
@@ -119,7 +128,7 @@ class Alert(Base):
     __tablename__ = "alert"
 
     alert_id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    txn_id: Mapped[str] = mapped_column(ForeignKey("txn.txn_id"), unique=True, nullable=False)
+    txn_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
     account_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
     risk_score: Mapped[float] = mapped_column(Float, index=True, nullable=False)
     risk_level: Mapped[str] = mapped_column(String(8), index=True, nullable=False)
@@ -140,6 +149,12 @@ class Alert(Base):
     txn: Mapped[Txn] = relationship(lazy="joined")
 
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["txn_id", "account_id"],
+            ["txn.txn_id", "txn.account_id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("txn_id", "account_id", name="uq_alert_txn_account"),
         Index("ix_alert_status_priority", "status", "priority"),
         Index("ix_alert_level_score", "risk_level", "risk_score"),
     )
@@ -212,6 +227,7 @@ class EvalLabel(Base):
     __tablename__ = "eval_label"
 
     txn_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    account_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     is_suspicious: Mapped[bool] = mapped_column(Boolean, default=False, index=True, nullable=False)
     suspicion_reason: Mapped[str | None] = mapped_column(String(64), nullable=True)
     case_id: Mapped[str | None] = mapped_column(String(64), nullable=True)

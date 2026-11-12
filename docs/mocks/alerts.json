@@ -1,0 +1,65 @@
+{
+  "items": [
+    {
+      "alert_id": "ALT-B3CFC06F707D",
+      "txn_id": "0742de22-f15f-4d85-9cec-ed5a63ca1f6f",
+      "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+      "ts_initiated": "2024-01-17T16:22:18",
+      "amount": 4141.305,
+      "counterparty_name": "Recipient 57409",
+      "risk_score": 0.90989,
+      "risk_level": "high",
+      "priority": 1,
+      "tags": [
+        "交易渠道",
+        "设备仿冒强度",
+        "近1小时交易笔数"
+      ],
+      "status": "pending",
+      "summary": "账户 0e4049f4 单笔 4,141.30 USD，综合风险 0.910。命中规则：24小时交易频次≥8、24小时金额合计≥10000、24小时单笔峰值≥5000、设备/环境仿冒信号。",
+      "created_at": "2026-11-12T07:54:36.541751"
+    },
+    {
+      "alert_id": "ALT-508986771091",
+      "txn_id": "fff063cb-a827-478e-a458-0c154332db7e",
+      "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+      "ts_initiated": "2024-01-22T17:28:34",
+      "amount": 3805.9634,
+      "counterparty_name": "Recipient 15773",
+      "risk_score": 0.86491,
+      "risk_level": "high",
+      "priority": 2,
+      "tags": [
+        "交易渠道",
+        "设备仿冒强度",
+        "近7天交易笔数"
+      ],
+      "status": "pending",
+      "summary": "账户 0e4049f4 单笔 3,805.96 USD，综合风险 0.865。命中规则：24小时交易频次≥8、24小时金额合计≥10000、设备/环境仿冒信号。",
+      "created_at": "2026-11-12T07:54:36.550825"
+    },
+    {
+      "alert_id": "ALT-56534F2A13D7",
+      "txn_id": "62cf31ec-c37c-47eb-81a3-365c89da0d85",
+      "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+      "ts_initiated": "2024-01-12T16:13:30",
+      "amount": 8257.8471,
+      "counterparty_name": "Recipient 5585",
+      "risk_score": 0.849985,
+      "risk_level": "high",
+      "priority": 3,
+      "tags": [
+        "交易渠道",
+        "设备仿冒强度",
+        "近30天金额Z分数"
+      ],
+      "status": "pending",
+      "summary": "账户 0e4049f4 单笔 8,257.85 USD，综合风险 0.850。命中规则：24小时金额合计≥10000、24小时单笔峰值≥5000、设备/环境仿冒信号。",
+      "created_at": "2026-11-12T07:54:36.538751"
+    }
+  ],
+  "total": 3000,
+  "page": 1,
+  "page_size": 3,
+  "pages": 1000
+}

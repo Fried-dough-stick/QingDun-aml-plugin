@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy import func, or_, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_settings
@@ -83,7 +83,10 @@ def list_alerts(
         db.scalar(
             select(func.count())
             .select_from(Alert)
-            .join(Txn, Alert.txn_id == Txn.txn_id)
+            .join(
+                Txn,
+                and_(Alert.txn_id == Txn.txn_id, Alert.account_id == Txn.account_id),
+            )
             .where(*conditions)
         )
         or 0
@@ -97,7 +100,7 @@ def list_alerts(
 
     rows = db.execute(
         select(Alert, Txn)
-        .join(Txn, Alert.txn_id == Txn.txn_id)
+        .join(Txn, and_(Alert.txn_id == Txn.txn_id, Alert.account_id == Txn.account_id))
         .where(*conditions)
         .order_by(*order_by)
         .offset((page - 1) * page_size)
@@ -170,10 +173,10 @@ def get_alert(
     alert = db.get(Alert, alert_id)
     if alert is None:
         raise HTTPException(status_code=404, detail="预警不存在")
-    txn = db.get(Txn, alert.txn_id)
+    txn = db.get(Txn, (alert.txn_id, alert.account_id))
     if txn is None:
         raise HTTPException(status_code=404, detail="关联交易不存在")
-    risk = db.get(RiskScore, alert.txn_id)
+    risk = db.get(RiskScore, (alert.txn_id, alert.account_id))
     write_audit(db, user, "view", "alert", alert_id, request)
 
     detail = _txn_detail(db, txn, risk, alert)
@@ -234,7 +237,7 @@ def get_timeline(
     alert = db.get(Alert, alert_id)
     if alert is None:
         raise HTTPException(status_code=404, detail="预警不存在")
-    txn = db.get(Txn, alert.txn_id)
+    txn = db.get(Txn, (alert.txn_id, alert.account_id))
     if txn is None:
         raise HTTPException(status_code=404, detail="关联交易不存在")
     return _timeline(db, alert.account_id, txn.ts_initiated, days)

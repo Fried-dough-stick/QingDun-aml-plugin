@@ -1,0 +1,264 @@
+{
+  "summary": {
+    "total_txns": 748869,
+    "total_accounts": 1311,
+    "total_alerts": 3000,
+    "high_alerts": 25,
+    "pending_alerts": 2577,
+    "total_amount": 426299623.8336,
+    "model_version": "xgb-v1"
+  },
+  "distribution": [
+    {
+      "risk_level": "high",
+      "count": 25
+    },
+    {
+      "risk_level": "mid",
+      "count": 29560
+    },
+    {
+      "risk_level": "low",
+      "count": 719284
+    }
+  ],
+  "trend": [
+    {
+      "date": "2024-12-03",
+      "count": 0,
+      "amount": 0.0,
+      "alerts": 0
+    },
+    {
+      "date": "2024-12-04",
+      "count": 2590,
+      "amount": 398374.8228,
+      "alerts": 11
+    },
+    {
+      "date": "2024-12-05",
+      "count": 2502,
+      "amount": 369377.3446,
+      "alerts": 14
+    },
+    {
+      "date": "2024-12-06",
+      "count": 2527,
+      "amount": 359703.0959,
+      "alerts": 9
+    },
+    {
+      "date": "2024-12-07",
+      "count": 1078,
+      "amount": 185947.3848,
+      "alerts": 1
+    },
+    {
+      "date": "2024-12-08",
+      "count": 1063,
+      "amount": 158447.1063,
+      "alerts": 2
+    },
+    {
+      "date": "2024-12-09",
+      "count": 2565,
+      "amount": 365926.2631,
+      "alerts": 4
+    },
+    {
+      "date": "2024-12-10",
+      "count": 2602,
+      "amount": 349287.6693,
+      "alerts": 6
+    },
+    {
+      "date": "2024-12-11",
+      "count": 2574,
+      "amount": 356580.0662,
+      "alerts": 5
+    },
+    {
+      "date": "2024-12-12",
+      "count": 2589,
+      "amount": 381515.2354,
+      "alerts": 7
+    },
+    {
+      "date": "2024-12-13",
+      "count": 2604,
+      "amount": 381230.8029,
+      "alerts": 9
+    },
+    {
+      "date": "2024-12-14",
+      "count": 1106,
+      "amount": 164111.2924,
+      "alerts": 0
+    },
+    {
+      "date": "2024-12-15",
+      "count": 1588,
+      "amount": 1361956.6895,
+      "alerts": 7
+    },
+    {
+      "date": "2024-12-16",
+      "count": 2574,
+      "amount": 353372.6386,
+      "alerts": 12
+    },
+    {
+      "date": "2024-12-17",
+      "count": 2573,
+      "amount": 369832.5869,
+      "alerts": 10
+    },
+    {
+      "date": "2024-12-18",
+      "count": 2552,
+      "amount": 368852.2953,
+      "alerts": 12
+    },
+    {
+      "date": "2024-12-19",
+      "count": 2567,
+      "amount": 399041.0193,
+      "alerts": 11
+    },
+    {
+      "date": "2024-12-20",
+      "count": 2584,
+      "amount": 357711.4731,
+      "alerts": 11
+    },
+    {
+      "date": "2024-12-21",
+      "count": 1041,
+      "amount": 171116.0934,
+      "alerts": 4
+    },
+    {
+      "date": "2024-12-22",
+      "count": 1081,
+      "amount": 170285.4257,
+      "alerts": 1
+    },
+    {
+      "date": "2024-12-23",
+      "count": 2534,
+      "amount": 379958.15,
+      "alerts": 11
+    },
+    {
+      "date": "2024-12-24",
+      "count": 2583,
+      "amount": 377214.2496,
+      "alerts": 6
+    },
+    {
+      "date": "2024-12-25",
+      "count": 2593,
+      "amount": 389353.4128,
+      "alerts": 8
+    },
+    {
+      "date": "2024-12-26",
+      "count": 2579,
+      "amount": 377834.9746,
+      "alerts": 2
+    },
+    {
+      "date": "2024-12-27",
+      "count": 2580,
+      "amount": 388128.5426,
+      "alerts": 6
+    },
+    {
+      "date": "2024-12-28",
+      "count": 1474,
+      "amount": 742033.4449,
+      "alerts": 8
+    },
+    {
+      "date": "2024-12-29",
+      "count": 1493,
+      "amount": 710276.9431,
+      "alerts": 12
+    },
+    {
+      "date": "2024-12-30",
+      "count": 2674,
+      "amount": 848041.1038,
+      "alerts": 16
+    },
+    {
+      "date": "2024-12-31",
+      "count": 2666,
+      "amount": 852195.8436,
+      "alerts": 17
+    },
+    {
+      "date": "2025-01-01",
+      "count": 3040,
+      "amount": 16914774.2741,
+      "alerts": 62
+    }
+  ],
+  "latest_alerts": [
+    {
+      "alert_id": "ALT-B3CFC06F707D",
+      "txn_id": "0742de22-f15f-4d85-9cec-ed5a63ca1f6f",
+      "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+      "ts_initiated": "2024-01-17T16:22:18",
+      "amount": 4141.305,
+      "risk_score": 0.90989,
+      "risk_level": "high",
+      "status": "pending",
+      "summary": "账户 0e4049f4 单笔 4,141.30 USD，综合风险 0.910。命中规则：24小时交易频次≥8、24小时金额合计≥10000、24小时单笔峰值≥5000、设备/环境仿冒信号。"
+    },
+    {
+      "alert_id": "ALT-508986771091",
+      "txn_id": "fff063cb-a827-478e-a458-0c154332db7e",
+      "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+      "ts_initiated": "2024-01-22T17:28:34",
+      "amount": 3805.9634,
+      "risk_score": 0.86491,
+      "risk_level": "high",
+      "status": "pending",
+      "summary": "账户 0e4049f4 单笔 3,805.96 USD，综合风险 0.865。命中规则：24小时交易频次≥8、24小时金额合计≥10000、设备/环境仿冒信号。"
+    },
+    {
+      "alert_id": "ALT-56534F2A13D7",
+      "txn_id": "62cf31ec-c37c-47eb-81a3-365c89da0d85",
+      "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+      "ts_initiated": "2024-01-12T16:13:30",
+      "amount": 8257.8471,
+      "risk_score": 0.849985,
+      "risk_level": "high",
+      "status": "pending",
+      "summary": "账户 0e4049f4 单笔 8,257.85 USD，综合风险 0.850。命中规则：24小时金额合计≥10000、24小时单笔峰值≥5000、设备/环境仿冒信号。"
+    },
+    {
+      "alert_id": "ALT-42D10F006E8A",
+      "txn_id": "418542e1-bab5-4ccc-8a91-1502618c5fd5",
+      "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+      "ts_initiated": "2024-01-12T10:46:41",
+      "amount": 11273.3395,
+      "risk_score": 0.849983,
+      "risk_level": "high",
+      "status": "pending",
+      "summary": "账户 0e4049f4 单笔 11,273.34 USD，综合风险 0.850。命中规则：24小时金额合计≥10000、24小时单笔峰值≥5000、设备/环境仿冒信号。"
+    },
+    {
+      "alert_id": "ALT-261D3E6717BA",
+      "txn_id": "831921f7-cc43-420a-b871-82f83485298c",
+      "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+      "ts_initiated": "2024-01-12T12:55:52",
+      "amount": 5822.085,
+      "risk_score": 0.849897,
+      "risk_level": "high",
+      "status": "confirmed",
+      "summary": "账户 0e4049f4 单笔 5,822.09 USD，综合风险 0.850。命中规则：24小时金额合计≥10000、24小时单笔峰值≥5000、设备/环境仿冒信号。"
+    }
+  ]
+}

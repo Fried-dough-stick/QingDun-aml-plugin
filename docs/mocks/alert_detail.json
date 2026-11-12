@@ -1,0 +1,313 @@
+{
+  "alert_id": "ALT-B3CFC06F707D",
+  "txn_id": "0742de22-f15f-4d85-9cec-ed5a63ca1f6f",
+  "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+  "risk_score": 0.90989,
+  "risk_level": "high",
+  "priority": 1,
+  "tags": [
+    "交易渠道",
+    "设备仿冒强度",
+    "近1小时交易笔数"
+  ],
+  "status": "pending",
+  "summary": "账户 0e4049f4 单笔 4,141.30 USD，综合风险 0.910。命中规则：24小时交易频次≥8、24小时金额合计≥10000、24小时单笔峰值≥5000、设备/环境仿冒信号。",
+  "note": null,
+  "assignee": null,
+  "created_at": "2026-11-12T07:54:36.541751",
+  "updated_at": "2026-11-12T07:54:36.541751",
+  "txn": {
+    "txn_id": "0742de22-f15f-4d85-9cec-ed5a63ca1f6f",
+    "account_id": "0e4049f4-25f9-4124-bd64-226b20ae0027",
+    "ts_initiated": "2024-01-17T16:22:18",
+    "amount": 4141.305,
+    "currency": "USD",
+    "direction": "outbound",
+    "channel": "wire",
+    "category": "utilities",
+    "mcc": 0.0,
+    "counterparty_type": "peer",
+    "counterparty_name": "Recipient 57409",
+    "counterparty_country": null,
+    "is_authorized": true,
+    "status": "completed",
+    "spoofing_intensity": 0.5,
+    "txn_count_1h": 2,
+    "txn_count_24h": 8,
+    "txn_count_7d": 31,
+    "txn_count_30d": 70,
+    "amount_sum_24h": 15069.701,
+    "amount_sum_7d": 66163.4791,
+    "amount_sum_30d": 146498.6947,
+    "amount_max_24h": 6960.6893,
+    "avg_amount_30d": 2092.8385,
+    "std_amount_30d": 3455.1404211279005,
+    "amount_zscore": 0.5928750362738346,
+    "unique_counterparties_24h": 3,
+    "unique_counterparties_7d": 7,
+    "unique_countries_7d": 1,
+    "risk": {
+      "txn_id": "0742de22-f15f-4d85-9cec-ed5a63ca1f6f",
+      "rule_score": 0.699999988079071,
+      "model_score": 0.9998430013656616,
+      "final_score": 0.9098900556564331,
+      "risk_level": "high",
+      "model_version": "xgb-v1",
+      "rule_hits": [
+        "24小时交易频次≥8",
+        "24小时金额合计≥10000",
+        "24小时单笔峰值≥5000",
+        "设备/环境仿冒信号"
+      ]
+    },
+    "alert_id": "ALT-B3CFC06F707D"
+  },
+  "factors": [
+    {
+      "rank": 1,
+      "feature": "channel",
+      "feature_label": "交易渠道",
+      "value": 10.0,
+      "shap_value": 4.772124290466309,
+      "direction": "up"
+    },
+    {
+      "rank": 2,
+      "feature": "spoofing_intensity",
+      "feature_label": "设备仿冒强度",
+      "value": 0.5,
+      "shap_value": 4.272453784942627,
+      "direction": "up"
+    },
+    {
+      "rank": 3,
+      "feature": "velocity_features.txn_count_1h",
+      "feature_label": "近1小时交易笔数",
+      "value": 2.0,
+      "shap_value": -0.7767937779426575,
+      "direction": "down"
+    },
+    {
+      "rank": 4,
+      "feature": "velocity_features.amount_sum_24h",
+      "feature_label": "近24小时金额合计",
+      "value": 15069.701045782347,
+      "shap_value": 0.7232961654663086,
+      "direction": "up"
+    },
+    {
+      "rank": 5,
+      "feature": "velocity_features.amount_max_24h",
+      "feature_label": "近24小时单笔金额峰值",
+      "value": 6960.68926706319,
+      "shap_value": 0.7006151676177979,
+      "direction": "up"
+    },
+    {
+      "rank": 6,
+      "feature": "velocity_features.txn_count_7d",
+      "feature_label": "近7天交易笔数",
+      "value": 31.0,
+      "shap_value": -0.6983744502067566,
+      "direction": "down"
+    },
+    {
+      "rank": 7,
+      "feature": "velocity_features.txn_count_24h",
+      "feature_label": "近24小时交易笔数",
+      "value": 8.0,
+      "shap_value": 0.5910684466362,
+      "direction": "up"
+    },
+    {
+      "rank": 8,
+      "feature": "velocity_features.txn_count_30d",
+      "feature_label": "近30天交易笔数",
+      "value": 70.0,
+      "shap_value": -0.5273706912994385,
+      "direction": "down"
+    }
+  ],
+  "timeline": [
+    {
+      "date": "2023-12-19",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-20",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-21",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-22",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-23",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-24",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-25",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-26",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-27",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-28",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-29",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-30",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2023-12-31",
+      "count": 0,
+      "amount": 0.0,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-01",
+      "count": 4,
+      "amount": 11359.3981,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-02",
+      "count": 5,
+      "amount": 12037.7351,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-03",
+      "count": 4,
+      "amount": 326.6409,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-04",
+      "count": 6,
+      "amount": 16849.5534,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-05",
+      "count": 3,
+      "amount": 396.1965,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-06",
+      "count": 3,
+      "amount": 7119.1798,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-07",
+      "count": 3,
+      "amount": 14073.259,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-08",
+      "count": 3,
+      "amount": 333.1794,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-09",
+      "count": 7,
+      "amount": 17659.7082,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-10",
+      "count": 4,
+      "amount": 484.6161,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-11",
+      "count": 4,
+      "amount": 11488.691,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-12",
+      "count": 7,
+      "amount": 31485.1111,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-13",
+      "count": 1,
+      "amount": 104.8547,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-14",
+      "count": 2,
+      "amount": 224.4253,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-15",
+      "count": 4,
+      "amount": 376.9278,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-16",
+      "count": 5,
+      "amount": 7661.9767,
+      "has_alert": false
+    },
+    {
+      "date": "2024-01-17",
+      "count": 6,
+      "amount": 18658.5468,
+      "has_alert": true
+    }
+  ]
+}

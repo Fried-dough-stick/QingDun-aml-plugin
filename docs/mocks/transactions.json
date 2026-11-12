@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "txn_id": "04eb6d24-ec45-4a71-9755-b15b5c999b19",
+      "account_id": "ed61800b-3890-4464-8638-c4426a2b64a8",
+      "ts_initiated": "2025-01-01T21:59:50",
+      "amount": 313.8249,
+      "currency": "USD",
+      "direction": "outbound",
+      "channel": "card_not_present",
+      "category": "shopping",
+      "counterparty_name": "Netflix",
+      "counterparty_country": null,
+      "risk_score": 0.4708483815193176,
+      "risk_level": "low"
+    },
+    {
+      "txn_id": "0873c7e9-d3d0-40bf-ab57-7490dc2e3a7b",
+      "account_id": "fe3e5678-e2c0-4776-8df1-3a2409d703cb",
+      "ts_initiated": "2025-01-01T21:58:46",
+      "amount": 36.8997,
+      "currency": "USD",
+      "direction": "outbound",
+      "channel": "ach",
+      "category": "subscription",
+      "counterparty_name": "Water Utility",
+      "counterparty_country": null,
+      "risk_score": 0.0032357920426875353,
+      "risk_level": "low"
+    },
+    {
+      "txn_id": "d7654bcd-10cc-4778-8c19-d6259f17fe54",
+      "account_id": "cc8c90ef-bf0b-4984-8fed-1c0e64c525c7",
+      "ts_initiated": "2025-01-01T21:58:11",
+      "amount": 286.9499,
+      "currency": "CAD",
+      "direction": "outbound",
+      "channel": "ach",
+      "category": "insurance",
+      "counterparty_name": "State Farm Insurance",
+      "counterparty_country": null,
+      "risk_score": 0.1193634569644928,
+      "risk_level": "low"
+    }
+  ],
+  "total": 748869,
+  "page": 1,
+  "page_size": 3,
+  "pages": 249623
+}

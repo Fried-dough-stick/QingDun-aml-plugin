@@ -1,0 +1,9 @@
+{
+  "status": "ok",
+  "mode": "model+rule",
+  "model_version": "xgb-v1",
+  "model_file": "artifacts/xgb_model.json",
+  "txn_count": 748869,
+  "alert_count": 3000,
+  "scored_count": 748869
+}
